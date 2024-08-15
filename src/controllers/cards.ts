@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import Card from "../models/card";
 import { ForbiddenError, NotFoundError, ValidationError } from "../errors";
+import {
+  HTTP_STATUS_OK,
+  HTTP_STATUS_CREATED,
+} from "../constants/httpStatusCodes";
 
 export const getCards = async (
   req: Request,
@@ -9,7 +13,7 @@ export const getCards = async (
 ) => {
   try {
     const cards = await Card.find().populate("owner");
-    res.status(200).json(cards);
+    res.status(HTTP_STATUS_OK).json(cards);
   } catch (err) {
     next(err);
   }
@@ -27,7 +31,7 @@ export const createCard = async (
     const newCard = new Card({ name, link, owner });
     await newCard.save();
 
-    res.status(201).json(newCard);
+    res.status(HTTP_STATUS_CREATED).json(newCard);
   } catch (err: any) {
     if (err.name === "ValidationError") {
       return next(
@@ -64,7 +68,7 @@ export const deleteCard = async (
 
     await card.deleteOne();
 
-    res.status(200).json({ message: "Карточка удалена" });
+    res.status(HTTP_STATUS_OK).json({ message: "Карточка удалена" });
   } catch (err: any) {
     if (err.kind === "ObjectId") {
       return next(new ValidationError("Некорректный _id карточки"));
@@ -89,7 +93,7 @@ export const likeCard = async (
       return next(new NotFoundError("Карточка не найдена"));
     }
 
-    res.status(200).json(card);
+    res.status(HTTP_STATUS_OK).json(card);
   } catch (err: any) {
     if (err.kind === "ObjectId") {
       return next(new ValidationError("Некорректный _id карточки"));
@@ -114,7 +118,7 @@ export const dislikeCard = async (
       return next(new NotFoundError("Карточка не найдена"));
     }
 
-    res.status(200).json(card);
+    res.status(HTTP_STATUS_OK).json(card);
   } catch (err: any) {
     if (err.kind === "ObjectId") {
       return next(new ValidationError("Некорректный _id карточки"));
